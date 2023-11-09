@@ -6,7 +6,6 @@ public class Trigger : MonoBehaviour
 {
     //SerialHandler.csのクラス
     public SerialHandler serialHandler;
-    int i = 0;
 
     void OnTriggerEnter(Collider other)
     {

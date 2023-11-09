@@ -39,6 +39,7 @@ public class SerialHandler : MonoBehaviour
 
     void OnDestroy()
     {
+        Debug.LogWarning("OnDestroy");
         Close();
     }
 
@@ -46,7 +47,7 @@ public class SerialHandler : MonoBehaviour
     {
         serialPort_ = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One);
 
-        serialPort_.ReadTimeout = 500;
+        serialPort_.ReadTimeout = 2000;
 
         //または
         //serialPort_ = new SerialPort(portName, baudRate);
