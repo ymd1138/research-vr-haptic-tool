@@ -640,6 +640,7 @@ GameObject:
   - component: {fileID: 1498352466}
   - component: {fileID: 1498352472}
   - component: {fileID: 1498352473}
+  - component: {fileID: 1498352474}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -829,6 +830,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb227f0d969d8e249999e15757d7cecf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serialHandler: {fileID: 1498352474}
+--- !u!114 &1498352474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1498352465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c58255ff697ed742b0e77f9af0bc738, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  portName: COM3
+  baudRate: 115200
 --- !u!1 &1531578759
 GameObject:
   m_ObjectHideFlags: 0
