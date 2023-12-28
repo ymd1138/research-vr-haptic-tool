@@ -497,6 +497,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b17da94619f5b6d4594dea2f0c038140, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  collisionPointTest: {fileID: 3660774757911937078, guid: 8a21eed0158c7fd4fa4497136a92080c, type: 3}
+  GodStick: {fileID: 1283643751818911400, guid: da8bee4e883b6f64482d00675c1ddba8, type: 3}
+  rightControllerTransform: {fileID: 1143497993}
+  TrackingSpace: {fileID: 2065029600}
 --- !u!1 &746100312
 GameObject:
   m_ObjectHideFlags: 0
@@ -728,7 +732,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: c293e983635a01f4abd4ae848e8e0fa8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

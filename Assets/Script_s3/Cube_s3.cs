@@ -12,7 +12,7 @@ public class Cube_s3 : MonoBehaviour
     {
         if (collision.gameObject.name == "Stick")
         {
-
+            // 衝突位置を取得して、球を生成する
             Vector3 hitPos;
             foreach (ContactPoint contact in collision.contacts)
             {
