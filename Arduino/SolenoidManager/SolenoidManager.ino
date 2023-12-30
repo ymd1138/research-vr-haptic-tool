@@ -31,10 +31,10 @@ void loop() {
 
   if (Serial.available() > 0) {  //受信データがあるか？
     data = Serial.read();        //1文字だけ読み込む
-    if (data == 0x31) {          //文字コード0x31、つまり"1"を受信したらLEDを光らせる。
+    if (data == 0x31) {          //文字コード0x31、つまり"1"を受信したら、ソレノイドをON。
       digitalWrite(solenoid, HIGH);
       delay(200);
-    } else if (data == 0x30) {  //文字コード0x30、つまり"0"を受信したらLEDを消す。
+    } else if (data == 0x30) {  //文字コード0x30、つまり"0"を受信したら、ソレノイドをOFF。
       digitalWrite(solenoid, LOW);
       delay(200);
     }
