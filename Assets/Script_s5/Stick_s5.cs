@@ -55,9 +55,9 @@ public class Stick_s5 : MonoBehaviour
         Vector3 localPos = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
         Vector3 nowPos = TrackingSpace.TransformPoint(localPos);
         float speed = Vector3.Distance(lastPos, nowPos) / Time.deltaTime;
-        Debug.Log("Time: " + Time.deltaTime);
+        //Debug.Log("Time: " + Time.deltaTime);
         lastPos = nowPos;
-        Debug.Log("Speed: " + String.Format("{0:0.00}", speed));
+        //Debug.Log("Speed: " + String.Format("{0:0.00}", speed));
 
         if (speed > 2.0f)
         {
