@@ -12,7 +12,9 @@ public class SpeedMeasure : MonoBehaviour
 {
     [SerializeField] private Transform TrackingSpace; // コントローラの位置取得用
 
+    // ファイル読み書き
     private StreamWriter sw;
+    private StreamWriter sw2;
 
     // 前回の位置
     private Vector3 previousPos = Vector3.zero;
@@ -22,20 +24,18 @@ public class SpeedMeasure : MonoBehaviour
     private Vector3 angularVelocityVector = Vector3.zero;
 
     private float time;
-
     DateTime dt;
     DateTime collisionTime;
 
-    // 棒の初期位置移動の分。棒の先端の位置を計算する際に使用する。
-    float StickOffset;
-
-    /*** 棒の上の点の位置をビジュアルで確認する用 ***/
-    // 棒の初期位置
-    private Vector3 shift = new Vector3(0.0f, 1.0f, 1.0f);
-
+    /*** Pythonの計算で使う / 棒の上の点の位置をビジュアルで確認する用 ***/
+    // 棒の先端の点の初期位置
+    private Vector3 shift_top = new Vector3(0.0f, 0.60355f, 0.60355f);
+    // 棒の根元の点の初期位置
+    private Vector3 shift_bottom = new Vector3(0.0f, -0.10355f, -0.10355f);
 
     // 棒上の点P 
-    public Vector3 point_P = Vector3.zero;
+    public Vector3 P_top = Vector3.zero; // 先端の点
+    public Vector3 P_bottom = Vector3.zero; // 根元の点
 
 
     // Start is called before the first frame update
@@ -48,14 +48,10 @@ public class SpeedMeasure : MonoBehaviour
         sw = new StreamWriter(@"OutputData/SaveData-" + dtString + ".csv", false, Encoding.UTF8);
         // sw = new StreamWriter(@"Output/SaveData" + dtString + ".csv", false, Encoding.GetEncoding("Shift_JIS"));
         // string[] s1 = { "time", "pos", "speed", "ac", "rot", "rotSpeed", "rotAc" };
-        string[] s1 = { "time", "pos.x", "pos.y", "pos.z", "speed", "rot.x", "rot.y", "rot.z", "deg/flame", "deg/s", "rad/s", "angleVector.x", "angleVector.y", "angleVector.z" };
+        string[] s1 = { "time", "pos.x", "pos.y", "pos.z", "speed", "rot.x", "rot.y", "rot.z", "deg/flame", "deg/s", "rad/s", "angleVector.x", "angleVector.y", "angleVector.z",
+                        "posP1.x", "posP1.y", "posP1.z", "posP2.x", "posP2.y", "posP2.z"};
         string s2 = string.Join(",", s1);
         sw.WriteLine(s2);
-
-        // 棒の初期位置移動分を計算。0.25*0.25*2 のルート。
-        StickOffset = Convert.ToSingle(Math.Sqrt(transform.localPosition.y * transform.localPosition.z * 2));
-        //Debug.Log("yPos: " + transform.localPosition.y); // 0.25
-        //Debug.Log("zPos: " + transform.localPosition.z); // 0.25
     }
 
 
@@ -109,16 +105,21 @@ public class SpeedMeasure : MonoBehaviour
         // オイラー角で見て、どちらの方法(transform と OVRInput)を使っても値が同じであることを確認した
         // Debug.Log("world1: " + transform.eulerAngles + " / world2: " + rrot_euler + " / local1: " + transform.localEulerAngles + " / local2: " + localRot_euler);
 
-        // 棒の上の点を計算
-        point_P = rpos + rot * shift;
+        // 棒の先端の点を計算
+        P_top = rpos + rot * shift_top;
 
+        // 棒の根元の点を計算
+        P_bottom = rpos + rot * shift_bottom;
 
         // ファイル書き込み
         SaveData(time.ToString(), rpos.x.ToString(), rpos.y.ToString(), rpos.z.ToString(), speed.ToString(),
                  rrot_euler.x.ToString(), rrot_euler.y.ToString(), rrot_euler.z.ToString(),
                  angle.ToString(), angularSpeed_euler.ToString(), angularSpeed.ToString(),
-                 angularVelocityVector.x.ToString(), angularVelocityVector.y.ToString(), angularVelocityVector.z.ToString());
+                 angularVelocityVector.x.ToString(), angularVelocityVector.y.ToString(), angularVelocityVector.z.ToString(),
+                 P_top.x.ToString(), P_top.y.ToString(), P_top.z.ToString(),
+                 P_bottom.x.ToString(), P_bottom.y.ToString(), P_bottom.z.ToString());
     }
+
 
     // コントローラの座標と回転から、棒の方向を求める
     public void DirCalc(Quaternion rot)
@@ -128,9 +129,11 @@ public class SpeedMeasure : MonoBehaviour
     }
 
     // ファイル書き込み関数
-    public void SaveData(string txt1, string txt2, string txt3, string txt4, string txt5, string txt6, string txt7, string txt8, string txt9, string txt10, string txt11, string txt12, string txt13, string txt14)
+    public void SaveData(string txt1, string txt2, string txt3, string txt4, string txt5, string txt6, string txt7, string txt8,
+    string txt9, string txt10, string txt11, string txt12, string txt13, string txt14, string txt15, string txt16, string txt17,
+    string txt18, string txt19, string txt20)
     {
-        string[] s1 = { txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9, txt10, txt11, txt12, txt13, txt14 };
+        string[] s1 = { txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9, txt10, txt11, txt12, txt13, txt14, txt15, txt16, txt17, txt18, txt19, txt20 };
         string s2 = string.Join(",", s1);
         sw.WriteLine(s2);
     }
