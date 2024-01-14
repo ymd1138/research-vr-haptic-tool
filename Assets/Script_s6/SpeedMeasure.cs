@@ -11,10 +11,11 @@ using UnityEngine;
 public class SpeedMeasure : MonoBehaviour
 {
     [SerializeField] private Transform TrackingSpace; // コントローラの位置取得用
+    public GameObject collisionPointSphere;
 
-    // ファイル読み書き
-    private StreamWriter sw;
-    private StreamWriter sw2;
+    /*** ファイル読み書き ***/
+    private StreamWriter sw; // メインデータ
+    private StreamWriter sw2; // 衝突位置、時間データ
 
     // 前回の位置
     private Vector3 previousPos = Vector3.zero;
@@ -23,7 +24,7 @@ public class SpeedMeasure : MonoBehaviour
     // 角速度ベクトル
     private Vector3 angularVelocityVector = Vector3.zero;
 
-    private float time;
+    public float time;
     DateTime dt;
     DateTime collisionTime;
 
@@ -48,12 +49,17 @@ public class SpeedMeasure : MonoBehaviour
         sw = new StreamWriter(@"OutputData/SaveData-" + dtString + ".csv", false, Encoding.UTF8);
         // sw = new StreamWriter(@"Output/SaveData" + dtString + ".csv", false, Encoding.GetEncoding("Shift_JIS"));
         // string[] s1 = { "time", "pos", "speed", "ac", "rot", "rotSpeed", "rotAc" };
-        string[] s1 = { "time", "pos.x", "pos.y", "pos.z", "speed", "rot.x", "rot.y", "rot.z", "deg/flame", "deg/s", "rad/s", "angleVector.x", "angleVector.y", "angleVector.z",
-                        "posP1.x", "posP1.y", "posP1.z", "posP2.x", "posP2.y", "posP2.z"};
+        string[] s1 = { "time", "pos.x", "pos.y", "pos.z", "speed", "rot.x", "rot.y", "rot.z", "deg/flame", "deg/s", "rad/s",
+                        "angleVector.x", "angleVector.y", "angleVector.z",
+                        "P_top.x", "P_top.y", "P_top.z", "P_bottom.x", "P_bottom.y", "P_bottom.z"};
         string s2 = string.Join(",", s1);
         sw.WriteLine(s2);
-    }
 
+        sw2 = new StreamWriter(@"OutputData/SaveData-" + dtString + "-collision.csv", false, Encoding.UTF8);
+        string[] s3 = { "collisionTime", "collisionPos.x", "collisionPos.y", "collisionPos.z" };
+        string s4 = string.Join(",", s3);
+        sw2.WriteLine(s4);
+    }
 
     // Update is called once per frame
     void Update()
@@ -100,8 +106,6 @@ public class SpeedMeasure : MonoBehaviour
 
         // 予測するときは、derlaRot (クォータニオン) のまま扱う
 
-        //DirCalc(rot);
-
         // オイラー角で見て、どちらの方法(transform と OVRInput)を使っても値が同じであることを確認した
         // Debug.Log("world1: " + transform.eulerAngles + " / world2: " + rrot_euler + " / local1: " + transform.localEulerAngles + " / local2: " + localRot_euler);
 
@@ -112,30 +116,32 @@ public class SpeedMeasure : MonoBehaviour
         P_bottom = rpos + rot * shift_bottom;
 
         // ファイル書き込み
+        /*
         SaveData(time.ToString(), rpos.x.ToString(), rpos.y.ToString(), rpos.z.ToString(), speed.ToString(),
                  rrot_euler.x.ToString(), rrot_euler.y.ToString(), rrot_euler.z.ToString(),
                  angle.ToString(), angularSpeed_euler.ToString(), angularSpeed.ToString(),
                  angularVelocityVector.x.ToString(), angularVelocityVector.y.ToString(), angularVelocityVector.z.ToString(),
                  P_top.x.ToString(), P_top.y.ToString(), P_top.z.ToString(),
                  P_bottom.x.ToString(), P_bottom.y.ToString(), P_bottom.z.ToString());
-    }
-
-
-    // コントローラの座標と回転から、棒の方向を求める
-    public void DirCalc(Quaternion rot)
-    {
-        Vector3 stick = new Vector3(0.0f, 0.5f, 0.0f);
-
+                 */
     }
 
     // ファイル書き込み関数
     public void SaveData(string txt1, string txt2, string txt3, string txt4, string txt5, string txt6, string txt7, string txt8,
-    string txt9, string txt10, string txt11, string txt12, string txt13, string txt14, string txt15, string txt16, string txt17,
-    string txt18, string txt19, string txt20)
+                        string txt9, string txt10, string txt11, string txt12, string txt13, string txt14, string txt15, string txt16, string txt17,
+                        string txt18, string txt19, string txt20)
     {
         string[] s1 = { txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9, txt10, txt11, txt12, txt13, txt14, txt15, txt16, txt17, txt18, txt19, txt20 };
         string s2 = string.Join(",", s1);
         sw.WriteLine(s2);
+    }
+
+    // 衝突位置用のファイル書き込み関数
+    public void SaveData2(string txt1, string txt2, string txt3, string txt4)
+    {
+        string[] s3 = { txt1, txt2, txt3, txt4 };
+        string s4 = string.Join(",", s3);
+        sw2.WriteLine(s4);
     }
 
     void OnCollisionEnter(Collision collision)
@@ -146,16 +152,31 @@ public class SpeedMeasure : MonoBehaviour
 
         if (collision.gameObject.name == "Cube")
         {
-            Debug.Log("Enter: " + time.ToString());
+            // どちらの方法でも同じ値だった
+            /*
+            Vector3 hitPos = collision.contacts[0].point;
+            Debug.Log("Enter: " + time + " / " + hitPos.ToString("F7"));
+            */
+            // 推奨されているこちらの方法で位置を取得する
+            Vector3 hitPos = collision.GetContact(0).point;
+            Instantiate(collisionPointSphere, hitPos, Quaternion.identity);
+            //SaveData2(time.ToString(), hitPos.x.ToString(), hitPos.y.ToString(), hitPos.z.ToString());
+            Debug.Log("Enter_" + this.gameObject.name + ": " + time + " / " + hitPos.ToString("F7"));
         }
-
     }
+
     void OnCollisionExit(Collision collision)
-    { }
+    {
+        Debug.Log("CollisionExit");
+        GetComponent<Renderer>().material.color = Color.white;
+    }
 
     private void OnApplicationQuit()
     {
         sw.Flush(); // StreamWriterのバッファに書き出し残しがないか確認
         sw.Close(); // アプリケーション終了時に書き込みを終了する
+
+        sw2.Flush();
+        sw2.Close();
     }
 }
