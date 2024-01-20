@@ -38,31 +38,39 @@ public class SpeedMeasure : MonoBehaviour
     public Vector3 P_top = Vector3.zero; // 先端の点
     public Vector3 P_bottom = Vector3.zero; // 根元の点
 
+    // コントローラーの前方を表すベクトル
+    public Vector3 forward_initial = new Vector3(0.0f, -1.0f, 1.0f);
+    public Vector3 forward = Vector3.zero;
 
+    private string filePath1;
+    private string filePath2;
     // Start is called before the first frame update
     void Start()
     {
         dt = DateTime.Now;
         String dtString = dt.ToString("yyyyMMdd-HHmmss");
 
+        filePath1 = @"OutputData\SaveData-" + dtString + ".csv";
+        filePath2 = @"OutputData\SaveData-" + dtString + "-collision.csv";
         // ファイル作成
-        sw = new StreamWriter(@"OutputData/SaveData-" + dtString + ".csv", false, Encoding.UTF8);
+        //sw = new StreamWriter(filePath1, false, Encoding.UTF8);
         // sw = new StreamWriter(@"Output/SaveData" + dtString + ".csv", false, Encoding.GetEncoding("Shift_JIS"));
         // string[] s1 = { "time", "pos", "speed", "ac", "rot", "rotSpeed", "rotAc" };
         string[] s1 = { "time", "pos.x", "pos.y", "pos.z", "speed", "rot.x", "rot.y", "rot.z", "deg/flame", "deg/s", "rad/s",
                         "angleVector.x", "angleVector.y", "angleVector.z",
-                        "P_top.x", "P_top.y", "P_top.z", "P_bottom.x", "P_bottom.y", "P_bottom.z"};
+                        "P_top.x", "P_top.y", "P_top.z", "P_bottom.x", "P_bottom.y", "P_bottom.z",
+                        "forward.x", "forward.y", "forward.z"};
         string s2 = string.Join(",", s1);
-        sw.WriteLine(s2);
-
-        sw2 = new StreamWriter(@"OutputData/SaveData-" + dtString + "-collision.csv", false, Encoding.UTF8);
+        System.IO.File.AppendAllText(filePath1, s2 + Environment.NewLine);
+        //sw.WriteLine(s2);
+        sw2 = new StreamWriter(filePath2, false, Encoding.UTF8);
         string[] s3 = { "collisionTime", "collisionPos.x", "collisionPos.y", "collisionPos.z" };
         string s4 = string.Join(",", s3);
         sw2.WriteLine(s4);
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         time += Time.deltaTime;
 
@@ -101,39 +109,56 @@ public class SpeedMeasure : MonoBehaviour
         // 角速度ベクトル（xyz）を計算。意味がよく分からないので保留。クォータニオンが求まっているので、予測にはクォータニオンを利用する
         // angularVelocityVector = axis * angularSpeed;
 
-        // 前回の角度を更新
-        previousRot = rot;
 
-        // 予測するときは、derlaRot (クォータニオン) のまま扱う
+        System.Threading.Thread thread = new System.Threading.Thread(() =>
+        {
+            // 前回の角度を更新
+            previousRot = rot;
 
-        // オイラー角で見て、どちらの方法(transform と OVRInput)を使っても値が同じであることを確認した
-        // Debug.Log("world1: " + transform.eulerAngles + " / world2: " + rrot_euler + " / local1: " + transform.localEulerAngles + " / local2: " + localRot_euler);
+            // 予測するときは、derlaRot (クォータニオン) のまま扱う
 
-        // 棒の先端の点を計算
-        P_top = rpos + rot * shift_top;
+            // オイラー角で見て、どちらの方法(transform と OVRInput)を使っても値が同じであることを確認した
+            // Debug.Log("world1: " + transform.eulerAngles + " / world2: " + rrot_euler + " / local1: " + transform.localEulerAngles + " / local2: " + localRot_euler);
 
-        // 棒の根元の点を計算
-        P_bottom = rpos + rot * shift_bottom;
+            // 棒の先端の点を計算
+            P_top = rpos + rot * shift_top;
 
-        // ファイル書き込み
-        /*
-        SaveData(time.ToString(), rpos.x.ToString(), rpos.y.ToString(), rpos.z.ToString(), speed.ToString(),
-                 rrot_euler.x.ToString(), rrot_euler.y.ToString(), rrot_euler.z.ToString(),
-                 angle.ToString(), angularSpeed_euler.ToString(), angularSpeed.ToString(),
-                 angularVelocityVector.x.ToString(), angularVelocityVector.y.ToString(), angularVelocityVector.z.ToString(),
-                 P_top.x.ToString(), P_top.y.ToString(), P_top.z.ToString(),
-                 P_bottom.x.ToString(), P_bottom.y.ToString(), P_bottom.z.ToString());
-                 */
+            // 棒の根元の点を計算
+            P_bottom = rpos + rot * shift_bottom;
+
+            // 棒の前方ベクトルを計算
+            // forward = rpos + rot * forward_initial; // 前方ベクトル確認用の球の位置
+            forward = rot * forward_initial;
+
+
+            // ファイル書き込み
+            SaveData1(filePath1, time.ToString(), rpos.x.ToString(), rpos.y.ToString(), rpos.z.ToString(), speed.ToString(),
+                     rrot_euler.x.ToString(), rrot_euler.y.ToString(), rrot_euler.z.ToString(),
+                     angle.ToString(), angularSpeed_euler.ToString(), angularSpeed.ToString(),
+                     angularVelocityVector.x.ToString(), angularVelocityVector.y.ToString(), angularVelocityVector.z.ToString(),
+                     P_top.x.ToString(), P_top.y.ToString(), P_top.z.ToString(),
+                     P_bottom.x.ToString(), P_bottom.y.ToString(), P_bottom.z.ToString(),
+                     forward.x.ToString(), forward.y.ToString(), forward.z.ToString());
+
+        });
+        thread.Start();
     }
 
     // ファイル書き込み関数
-    public void SaveData(string txt1, string txt2, string txt3, string txt4, string txt5, string txt6, string txt7, string txt8,
+    public void SaveData1(string filePath, string txt1, string txt2, string txt3, string txt4, string txt5, string txt6, string txt7, string txt8,
                         string txt9, string txt10, string txt11, string txt12, string txt13, string txt14, string txt15, string txt16, string txt17,
-                        string txt18, string txt19, string txt20)
+                        string txt18, string txt19, string txt20, string txt21, string txt22, string txt23)
     {
-        string[] s1 = { txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9, txt10, txt11, txt12, txt13, txt14, txt15, txt16, txt17, txt18, txt19, txt20 };
+        string[] s1 = { txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9, txt10, txt11, txt12, txt13, txt14, txt15, txt16, txt17, txt18, txt19, txt20, txt21, txt22, txt23 };
         string s2 = string.Join(",", s1);
-        sw.WriteLine(s2);
+        if (System.IO.File.Exists(filePath))
+        {
+            System.IO.File.AppendAllText(filePath, s2 + Environment.NewLine);
+        }
+        else
+        {
+            System.IO.File.WriteAllText(filePath, s2 + Environment.NewLine);
+        }
     }
 
     // 衝突位置用のファイル書き込み関数
@@ -150,7 +175,7 @@ public class SpeedMeasure : MonoBehaviour
         Debug.Log("Collision: " + collision.gameObject.name);
         GetComponent<Renderer>().material.color = Color.red;
 
-        if (collision.gameObject.name == "Cube")
+        if (collision.gameObject.tag == "Cube")
         {
             // どちらの方法でも同じ値だった
             /*
@@ -160,7 +185,7 @@ public class SpeedMeasure : MonoBehaviour
             // 推奨されているこちらの方法で位置を取得する
             Vector3 hitPos = collision.GetContact(0).point;
             Instantiate(collisionPointSphere, hitPos, Quaternion.identity);
-            //SaveData2(time.ToString(), hitPos.x.ToString(), hitPos.y.ToString(), hitPos.z.ToString());
+            SaveData2(time.ToString(), hitPos.x.ToString(), hitPos.y.ToString(), hitPos.z.ToString());
             Debug.Log("Enter_" + this.gameObject.name + ": " + time + " / " + hitPos.ToString("F7"));
         }
     }
@@ -173,8 +198,8 @@ public class SpeedMeasure : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        sw.Flush(); // StreamWriterのバッファに書き出し残しがないか確認
-        sw.Close(); // アプリケーション終了時に書き込みを終了する
+        //sw.Flush(); // StreamWriterのバッファに書き出し残しがないか確認
+        //sw.Close(); // アプリケーション終了時に書き込みを終了する
 
         sw2.Flush();
         sw2.Close();
