@@ -56,15 +56,15 @@ public class SpeedMeasure : MonoBehaviour
         //sw = new StreamWriter(filePath1, false, Encoding.UTF8);
         // sw = new StreamWriter(@"Output/SaveData" + dtString + ".csv", false, Encoding.GetEncoding("Shift_JIS"));
         // string[] s1 = { "time", "pos", "speed", "ac", "rot", "rotSpeed", "rotAc" };
-        string[] s1 = { "time", "pos.x", "pos.y", "pos.z", "speed", "rot.x", "rot.y", "rot.z", "deg/flame", "deg/s", "rad/s",
-                        "angleVector.x", "angleVector.y", "angleVector.z",
-                        "P_top.x", "P_top.y", "P_top.z", "P_bottom.x", "P_bottom.y", "P_bottom.z",
-                        "forward.x", "forward.y", "forward.z"};
+        string[] s1 = { "time", "pos_x", "pos_y", "pos_z", "speed", "rot_x", "rot_y", "rot_z", "deg/flame", "deg/s", "rad/s",
+                        "angleVector_x", "angleVector_y", "angleVector_z",
+                        "P_top_x", "P_top_y", "P_top_z", "P_bottom_x", "P_bottom_y", "P_bottom_z",
+                        "forward_x", "forward_y", "forward_z"};
         string s2 = string.Join(",", s1);
         System.IO.File.AppendAllText(filePath1, s2 + Environment.NewLine);
         //sw.WriteLine(s2);
         sw2 = new StreamWriter(filePath2, false, Encoding.UTF8);
-        string[] s3 = { "collisionTime", "collisionPos.x", "collisionPos.y", "collisionPos.z" };
+        string[] s3 = { "collisionTime", "collisionPos_x", "collisionPos_y", "collisionPos_z" };
         string s4 = string.Join(",", s3);
         sw2.WriteLine(s4);
     }
