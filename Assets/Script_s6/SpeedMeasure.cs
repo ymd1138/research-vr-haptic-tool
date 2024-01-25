@@ -35,12 +35,13 @@ public class SpeedMeasure : MonoBehaviour
     private Vector3 shift_bottom = new Vector3(0.0f, -0.10355f, -0.10355f);
 
     // 棒上の点P 
-    public Vector3 P_top = Vector3.zero; // 先端の点
     public Vector3 P_bottom = Vector3.zero; // 根元の点
+    public Vector3 P_top = Vector3.zero; // 先端の点
 
     // コントローラーの前方を表すベクトル
     public Vector3 forward_initial = new Vector3(0.0f, -1.0f, 1.0f);
     public Vector3 forward = Vector3.zero;
+
 
     private string filePath1;
     private string filePath2;
@@ -57,9 +58,9 @@ public class SpeedMeasure : MonoBehaviour
         // sw = new StreamWriter(@"Output/SaveData" + dtString + ".csv", false, Encoding.GetEncoding("Shift_JIS"));
         // string[] s1 = { "time", "pos", "speed", "ac", "rot", "rotSpeed", "rotAc" };
         string[] s1 = { "time", "pos_x", "pos_y", "pos_z", "speed", "rot_x", "rot_y", "rot_z", "deg/flame", "deg/s", "rad/s",
-                        "angleVector_x", "angleVector_y", "angleVector_z",
-                        "P_top_x", "P_top_y", "P_top_z", "P_bottom_x", "P_bottom_y", "P_bottom_z",
+                        "P_bottom_x", "P_bottom_y", "P_bottom_z", "P_top_x", "P_top_y", "P_top_z",
                         "forward_x", "forward_y", "forward_z"};
+        //"angleVector_x", "angleVector_y", "angleVector_z",
         string s2 = string.Join(",", s1);
         System.IO.File.AppendAllText(filePath1, s2 + Environment.NewLine);
         //sw.WriteLine(s2);
@@ -120,11 +121,10 @@ public class SpeedMeasure : MonoBehaviour
             // オイラー角で見て、どちらの方法(transform と OVRInput)を使っても値が同じであることを確認した
             // Debug.Log("world1: " + transform.eulerAngles + " / world2: " + rrot_euler + " / local1: " + transform.localEulerAngles + " / local2: " + localRot_euler);
 
-            // 棒の先端の点を計算
-            P_top = rpos + rot * shift_top;
-
             // 棒の根元の点を計算
             P_bottom = rpos + rot * shift_bottom;
+            // 棒の先端の点を計算
+            P_top = rpos + rot * shift_top;
 
             // 棒の前方ベクトルを計算
             // forward = rpos + rot * forward_initial; // 前方ベクトル確認用の球の位置
@@ -135,21 +135,27 @@ public class SpeedMeasure : MonoBehaviour
             SaveData1(filePath1, time.ToString(), rpos.x.ToString(), rpos.y.ToString(), rpos.z.ToString(), speed.ToString(),
                      rrot_euler.x.ToString(), rrot_euler.y.ToString(), rrot_euler.z.ToString(),
                      angle.ToString(), angularSpeed_euler.ToString(), angularSpeed.ToString(),
-                     angularVelocityVector.x.ToString(), angularVelocityVector.y.ToString(), angularVelocityVector.z.ToString(),
-                     P_top.x.ToString(), P_top.y.ToString(), P_top.z.ToString(),
                      P_bottom.x.ToString(), P_bottom.y.ToString(), P_bottom.z.ToString(),
+                     P_top.x.ToString(), P_top.y.ToString(), P_top.z.ToString(),
                      forward.x.ToString(), forward.y.ToString(), forward.z.ToString());
+            // angularVelocityVector.x.ToString(), angularVelocityVector.y.ToString(), angularVelocityVector.z.ToString(),
 
         });
         thread.Start();
     }
 
+    // 予測方法1: 前からの変化量のみ（等速運動とみなす）
+    public void Method1()
+    {
+
+    }
+
     // ファイル書き込み関数
     public void SaveData1(string filePath, string txt1, string txt2, string txt3, string txt4, string txt5, string txt6, string txt7, string txt8,
                         string txt9, string txt10, string txt11, string txt12, string txt13, string txt14, string txt15, string txt16, string txt17,
-                        string txt18, string txt19, string txt20, string txt21, string txt22, string txt23)
+                        string txt18, string txt19, string txt20)
     {
-        string[] s1 = { txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9, txt10, txt11, txt12, txt13, txt14, txt15, txt16, txt17, txt18, txt19, txt20, txt21, txt22, txt23 };
+        string[] s1 = { txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9, txt10, txt11, txt12, txt13, txt14, txt15, txt16, txt17, txt18, txt19, txt20};
         string s2 = string.Join(",", s1);
         if (System.IO.File.Exists(filePath))
         {
