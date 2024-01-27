@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 114500968}
   - component: {fileID: 114500976}
+  - component: {fileID: 114500977}
   - component: {fileID: 114500975}
   - component: {fileID: 114500974}
   - component: {fileID: 114500973}
@@ -323,7 +324,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 114500967}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c444f5114a553d742aa1dbbe01717f21, type: 3}
   m_Name: 
@@ -331,8 +332,27 @@ MonoBehaviour:
   TrackingSpace: {fileID: 2065029600}
   collisionPointSphere: {fileID: 3660774757911937078, guid: 8a21eed0158c7fd4fa4497136a92080c, type: 3}
   time: 0
-  P_top: {x: 0, y: 0, z: 0}
   P_bottom: {x: 0, y: 0, z: 0}
+  P_top: {x: 0, y: 0, z: 0}
+  forward_initial: {x: 0, y: -1, z: 1}
+  forward: {x: 0, y: 0, z: 0}
+--- !u!114 &114500977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 114500967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f945e1d4266cf944b80bfab732f4bb58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TrackingSpace: {fileID: 2065029600}
+  collisionPointSphere: {fileID: 3660774757911937078, guid: 8a21eed0158c7fd4fa4497136a92080c, type: 3}
+  time: 0
+  P_bottom: {x: 0, y: 0, z: 0}
+  P_top: {x: 0, y: 0, z: 0}
   forward_initial: {x: 0, y: -1, z: 1}
   forward: {x: 0, y: 0, z: 0}
 --- !u!1 &156531307
@@ -1111,8 +1131,8 @@ MonoBehaviour:
   TrackingSpace: {fileID: 2065029600}
   collisionPointSphere: {fileID: 3660774757911937078, guid: a2ae8551e9bcd964d905942e11d9f792, type: 3}
   time: 0
-  P_top: {x: 0, y: 0, z: 0}
   P_bottom: {x: 0, y: 0, z: 0}
+  P_top: {x: 0, y: 0, z: 0}
   forward_initial: {x: 0, y: -1, z: 1}
   forward: {x: 0, y: 0, z: 0}
 --- !u!4 &391025021 stripped
@@ -1575,8 +1595,8 @@ MonoBehaviour:
   TrackingSpace: {fileID: 2065029600}
   collisionPointSphere: {fileID: 0}
   time: 0
-  P_top: {x: 0, y: 0, z: 0}
   P_bottom: {x: 0, y: 0, z: 0}
+  P_top: {x: 0, y: 0, z: 0}
   forward_initial: {x: 0, y: -1, z: 1}
   forward: {x: 0, y: 0, z: 0}
 --- !u!1 &746100312
