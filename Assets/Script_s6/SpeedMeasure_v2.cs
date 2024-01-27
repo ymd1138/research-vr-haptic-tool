@@ -16,6 +16,7 @@ public class SpeedMeasure_v2 : MonoBehaviour
 
     // 時間
     public float time;
+    public float deltaTime;
     DateTime dt;
 
     /*** ファイル読み書き ***/
@@ -23,8 +24,8 @@ public class SpeedMeasure_v2 : MonoBehaviour
     private string filePath1;
     private string filePath2;
 
-    // 前回の位置
-    private Vector3 previousPos = Vector3.zero;
+    // 前回の位置（先端の点）
+    private Vector3 previousTopPos = Vector3.zero;
     // 前回の回転
     private Quaternion previousRot = Quaternion.identity;
     // 角速度ベクトル
@@ -70,21 +71,8 @@ public class SpeedMeasure_v2 : MonoBehaviour
 
     void FixedUpdate()
     {
-        time += Time.deltaTime;
-
-        // コントローラーの位置を取得
-        Vector3 localPos = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
-        Vector3 rpos = TrackingSpace.TransformPoint(localPos);
-
-        /*** 速度を計算 ***/
-        // 前回の位置(lastPos)と今回の位置(rpos)の差を経過時間で割って、速度を求めている。
-        float speed = Vector3.Distance(previousPos, rpos) / Time.deltaTime;
-        //Debug.Log("Time: " + Time.deltaTime);
-
-        // 前回の位置を更新
-        previousPos = rpos;
-        // Debug.Log("Speed: " + String.Format("{0:0.00}", speed));
-
+        deltaTime = Time.deltaTime;
+        time += deltaTime;
 
         // コントローラーの角度を取得
         Vector3 localRot_euler = OVRInput.GetLocalControllerRotation(OVRInput.Controller.RTouch).eulerAngles;
@@ -101,19 +89,34 @@ public class SpeedMeasure_v2 : MonoBehaviour
         // angle は、[deg/flame] (オイラー角/1フレーム)   
         deltaRot.ToAngleAxis(out float angle, out Vector3 axis);
         // deg/s を求める
-        float angularSpeed_euler = angle / Time.deltaTime;
+        // float angularSpeed_euler = angle / deltaTime;
         // 角速度 [rad/s] を計算
-        float angularSpeed = (angle * Mathf.Deg2Rad) / Time.deltaTime;
+        float angularSpeed = (angle * Mathf.Deg2Rad) / deltaTime;
 
         // 前回の角度を更新
         previousRot = quaternion;
 
+
+        // コントローラーの位置を取得
+        Vector3 localPos = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
+        Vector3 rpos = TrackingSpace.TransformPoint(localPos);
+
         System.Threading.Thread thread = new System.Threading.Thread(() =>
         {
+            /*** 速度を計算 ***/
+            /* 棒の先端の点の速度を計算する */
+            // 棒の先端の点を求める
+            P_top = rpos + quaternion * shift_top;
+            // 前回の位置と今回の位置の差を経過時間で割って、速度を求めている。
+            float speed = Vector3.Distance(previousTopPos, P_top) / deltaTime;
+            //Debug.Log("Time: " + Time.deltaTime);
+
+            // 前回の位置を更新
+            previousTopPos = P_top;
+            // Debug.Log("Speed: " + String.Format("{0:0.00}", speed));
+
             // 棒の根元の点を計算
             P_bottom = rpos + quaternion * shift_bottom;
-            // 棒の先端の点を計算
-            P_top = rpos + quaternion * shift_top;
 
             // 棒の前方ベクトルを計算
             // forward = rpos + rot * forward_initial; // 前方ベクトル確認用の球の位置
