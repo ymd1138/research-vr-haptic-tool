@@ -112,21 +112,18 @@ public class SpeedMeasure_v2 : MonoBehaviour
         rb.MoveRotation(quaternion * shift_quat);
 
 
-        // コントローラーの位置を取得
+        // コントローラーの位置を取得. 確かめたところ、どちらも同じ値だった。
         Vector3 localPos = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
         Vector3 rpos = TrackingSpace.TransformPoint(localPos);
-        Debug.Log("localPos: " + rpos.ToString("F7"));
-        Debug.Log("rpos: " + rpos.ToString("F7"));
+
 
 
         // handPos = rpos + rb.rotation * deltaRot * shift_hand;
         handPos = rpos + quaternion * shift_hand;
         rb.MovePosition(handPos);
 
-        Vector3 velocity = TrackingSpace.TransformPoint(OVRInput.GetLocalControllerVelocity(OVRInput.Controller.RTouch));
-        Vector3 angularVelocity = TrackingSpace.TransformPoint(OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.RTouch));
-        Debug.Log("localVelocity: " + OVRInput.GetLocalControllerVelocity(OVRInput.Controller.RTouch).ToString("F7"));
-        Debug.Log("velocity: " + velocity.ToString("F7"));
+        Vector3 velocity = OVRInput.GetLocalControllerVelocity(OVRInput.Controller.RTouch);
+        Vector3 angularVelocity = OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.RTouch);
 
         float speed_ovr = velocity.magnitude;
 
