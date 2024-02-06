@@ -24,6 +24,8 @@ public class SpeedMeasure_v2 : MonoBehaviour
     private string filePath1;
     private string filePath2;
 
+    // 前回の位置（コントローラ）
+    private Vector3 previousPos = Vector3.zero;
     // 前回の位置（先端の点）
     private Vector3 previousTopPos = Vector3.zero;
     // 前回の回転
@@ -31,6 +33,11 @@ public class SpeedMeasure_v2 : MonoBehaviour
     // 角速度ベクトル
     private Vector3 angularVelocityVector = Vector3.zero;
 
+    // 動かす方法を変える
+    public Rigidbody rb;
+    private Vector3 shift_hand = new Vector3(0.0f, 0.25f, 0.25f); // 持つ位置のオフセット
+    public Vector3 handPos = Vector3.zero; // コントローラの位置
+    private Quaternion shift_quat  = Quaternion.Euler(45.0f, 0.0f, 0.0f); // 持つ角度のオフセット
 
 
     /*** Pythonの計算で使う / 棒の上の点の位置をビジュアルで確認する用 ***/
@@ -49,6 +56,8 @@ public class SpeedMeasure_v2 : MonoBehaviour
 
     void Start()
     {
+        rb = GetComponent<Rigidbody>();
+
         dt = DateTime.Now;
         String dtString = dt.ToString("yyyyMMdd-HHmmss");
 
@@ -59,7 +68,10 @@ public class SpeedMeasure_v2 : MonoBehaviour
                         "P_bottom_x", "P_bottom_y", "P_bottom_z", "P_top_x", "P_top_y", "P_top_z",
                         "time", "pos_x", "pos_y", "pos_z", "rot_x", "rot_y", "rot_z",
                         "quaternion_w","quaternion_x", "quaternion_y", "quaternion_z",
-                        "speed", "rad/s" };
+                        "speed_p_top", "rad/s", "speed",
+                        "velocity_x", "velocity_y", "velocity_z", "speed_ovr",
+                        "angularVelocity_x", "angularVelocity_y", "angularVelocity_z"
+                        };
         string s2 = string.Join(",", s1);
         System.IO.File.AppendAllText(filePath1, s2 + Environment.NewLine);
         sw2 = new StreamWriter(filePath2, false, Encoding.UTF8);
@@ -96,22 +108,43 @@ public class SpeedMeasure_v2 : MonoBehaviour
         // 前回の角度を更新
         previousRot = quaternion;
 
+        //rb.MoveRotation(rb.rotation * deltaRot);
+        rb.MoveRotation(quaternion * shift_quat);
+
 
         // コントローラーの位置を取得
         Vector3 localPos = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
         Vector3 rpos = TrackingSpace.TransformPoint(localPos);
+        Debug.Log("localPos: " + rpos.ToString("F7"));
+        Debug.Log("rpos: " + rpos.ToString("F7"));
+
+
+        // handPos = rpos + rb.rotation * deltaRot * shift_hand;
+        handPos = rpos + quaternion * shift_hand;
+        rb.MovePosition(handPos);
+
+        Vector3 velocity = TrackingSpace.TransformPoint(OVRInput.GetLocalControllerVelocity(OVRInput.Controller.RTouch));
+        Vector3 angularVelocity = TrackingSpace.TransformPoint(OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.RTouch));
+        Debug.Log("localVelocity: " + OVRInput.GetLocalControllerVelocity(OVRInput.Controller.RTouch).ToString("F7"));
+        Debug.Log("velocity: " + velocity.ToString("F7"));
+
+        float speed_ovr = velocity.magnitude;
 
         System.Threading.Thread thread = new System.Threading.Thread(() =>
         {
+            
             /*** 速度を計算 ***/
             /* 棒の先端の点の速度を計算する */
             // 棒の先端の点を求める
             P_top = rpos + quaternion * shift_top;
             // 前回の位置と今回の位置の差を経過時間で割って、速度を求めている。
-            float speed = Vector3.Distance(previousTopPos, P_top) / deltaTime;
+            float speed_p_top = Vector3.Distance(previousTopPos, P_top) / deltaTime;
             //Debug.Log("Time: " + Time.deltaTime);
+            // コントローラの速度
+            float speed = Vector3.Distance(previousPos, rpos) / deltaTime;
 
             // 前回の位置を更新
+            previousPos = rpos;
             previousTopPos = P_top;
             // Debug.Log("Speed: " + String.Format("{0:0.00}", speed));
 
@@ -130,7 +163,10 @@ public class SpeedMeasure_v2 : MonoBehaviour
                         time.ToString(), rpos.x.ToString(), rpos.y.ToString(), rpos.z.ToString(),
                         rrot_euler.x.ToString(), rrot_euler.y.ToString(), rrot_euler.z.ToString(),
                         quaternion.w.ToString(), quaternion.x.ToString(), quaternion.y.ToString(), quaternion.z.ToString(),
-                        speed.ToString(), angularSpeed.ToString());
+                        speed_p_top.ToString(), angularSpeed.ToString(), speed.ToString(),
+                        velocity.x.ToString(), velocity.y.ToString(), velocity.z.ToString(), speed_ovr.ToString(),
+                        angularVelocity.x.ToString(), angularVelocity.y.ToString(), angularVelocity.z.ToString()
+                        );
         });
         thread.Start();
     }
@@ -138,9 +174,13 @@ public class SpeedMeasure_v2 : MonoBehaviour
     // ファイル書き込み関数
     public void SaveData1(string filePath, string txt1, string txt2, string txt3, string txt4, string txt5, string txt6, string txt7, string txt8,
                         string txt9, string txt10, string txt11, string txt12, string txt13, string txt14, string txt15, string txt16, string txt17,
-                        string txt18, string txt19, string txt20, string txt21, string txt22)
+                        string txt18, string txt19, string txt20, string txt21, string txt22, 
+                        string txt23, string txt24, string txt25, string txt26, string txt27, string txt28, string txt29, string txt30
+                        )
     {
-        string[] s1 = { txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9, txt10, txt11, txt12, txt13, txt14, txt15, txt16, txt17, txt18, txt19, txt20, txt21, txt22 };
+        string[] s1 = { txt1, txt2, txt3, txt4, txt5, txt6, txt7, txt8, txt9, txt10, txt11, txt12, txt13, txt14, txt15, txt16, txt17, txt18, txt19, txt20, txt21, txt22,
+                        txt23, txt24, txt25, txt26, txt27, txt28, txt29, txt30
+                         };
         string s2 = string.Join(",", s1);
         if (System.IO.File.Exists(filePath))
         {
@@ -164,7 +204,7 @@ public class SpeedMeasure_v2 : MonoBehaviour
     {
         // 衝突対象の名前を取得して、ログに出力
         Debug.Log("Collision: " + collision.gameObject.name);
-        GetComponent<Renderer>().material.color = Color.red;
+        //GetComponent<Renderer>().material.color = Color.red;
 
         if (collision.gameObject.tag == "Cube")
         {

@@ -1814,13 +1814,28 @@ GameObject:
   - component: {fileID: 964146736}
   - component: {fileID: 964146735}
   - component: {fileID: 964146734}
+  - component: {fileID: 964146733}
   m_Layer: 0
   m_Name: Cube (2)
   m_TagString: Cube
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
+--- !u!114 &964146733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 964146732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c58255ff697ed742b0e77f9af0bc738, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  portName: COM3
+  baudRate: 115200
 --- !u!54 &964146734
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1847,7 +1862,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 126
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!65 &964146735
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2340,7 +2355,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1498352471}
-  - component: {fileID: 1498352475}
   - component: {fileID: 1498352470}
   - component: {fileID: 1498352469}
   - component: {fileID: 1498352468}
@@ -2352,7 +2366,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &1498352468
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2480,19 +2494,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   portName: COM3
   baudRate: 115200
---- !u!114 &1498352475
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1498352465}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dad20a81a7d2da7478446a8f3135003b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  collisionPointTest: {fileID: 3660774757911937078, guid: a2ae8551e9bcd964d905942e11d9f792, type: 3}
 --- !u!1 &1531578759
 GameObject:
   m_ObjectHideFlags: 0
@@ -2605,6 +2606,7 @@ GameObject:
   - component: {fileID: 1840468463}
   - component: {fileID: 1840468462}
   - component: {fileID: 1840468461}
+  - component: {fileID: 1840468460}
   m_Layer: 0
   m_Name: Stick3
   m_TagString: Untagged
@@ -2612,6 +2614,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1840468460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1840468459}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c58255ff697ed742b0e77f9af0bc738, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  portName: COM3
+  baudRate: 115200
 --- !u!54 &1840468461
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2636,9 +2652,9 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 0
   m_IsKinematic: 1
-  m_Interpolate: 1
+  m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 3
+  m_CollisionDetection: 1
 --- !u!136 &1840468462
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2724,7 +2740,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acc69766c24f36c41aa8894bb23f592a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  serialHandler: {fileID: 0}
+  serialHandler: {fileID: 1840468460}
   Col_1: {fileID: 1840468462}
   Col_2: {fileID: 0}
   TrackingSpace: {fileID: 2065029600}
