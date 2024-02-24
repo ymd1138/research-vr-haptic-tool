@@ -11,6 +11,7 @@ using UnityEngine;
 
 public class SpeedMeasure_v2 : MonoBehaviour
 {
+    public SerialHandler serialHandler;
     [SerializeField] private Transform TrackingSpace; // コントローラの位置取得用
     public GameObject collisionPointSphere; // 衝突位置確認用の球
 
@@ -37,7 +38,7 @@ public class SpeedMeasure_v2 : MonoBehaviour
     public Rigidbody rb;
     private Vector3 shift_hand = new Vector3(0.0f, 0.25f, 0.25f); // 持つ位置のオフセット
     public Vector3 handPos = Vector3.zero; // コントローラの位置
-    private Quaternion shift_quat  = Quaternion.Euler(45.0f, 0.0f, 0.0f); // 持つ角度のオフセット
+    private Quaternion shift_quat = Quaternion.Euler(45.0f, 0.0f, 0.0f); // 持つ角度のオフセット
 
 
     /*** Pythonの計算で使う / 棒の上の点の位置をビジュアルで確認する用 ***/
@@ -52,6 +53,10 @@ public class SpeedMeasure_v2 : MonoBehaviour
     // コントローラーの前方を表すベクトル
     public Vector3 forward_initial = new Vector3(0.0f, -1.0f, 1.0f); // 初期位置（オフセット）
     public Vector3 forward = Vector3.zero; // 書き出すベクトル
+
+    // 一定秒数通電させると、ソレノイドをOFFにする
+    private bool flag_Enter = false;
+    private float countSec = 0.0f;
 
 
     void Start()
@@ -85,6 +90,25 @@ public class SpeedMeasure_v2 : MonoBehaviour
     {
         deltaTime = Time.deltaTime;
         time += deltaTime;
+
+        /* 2秒通電させると、ソレノイドをOFFにする */
+        if (flag_Enter)
+        {
+            countSec += deltaTime;
+            if (countSec > 2.0f)
+            {
+                try
+                {
+                    serialHandler.Write("0");
+                    flag_Enter = false;
+                    countSec = 0.0f;
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarning(e.Message);
+                }
+            }
+        }
 
         // コントローラーの角度を取得
         Vector3 localRot_euler = OVRInput.GetLocalControllerRotation(OVRInput.Controller.RTouch).eulerAngles;
@@ -129,7 +153,7 @@ public class SpeedMeasure_v2 : MonoBehaviour
 
         System.Threading.Thread thread = new System.Threading.Thread(() =>
         {
-            
+
             /*** 速度を計算 ***/
             /* 棒の先端の点の速度を計算する */
             // 棒の先端の点を求める
@@ -171,7 +195,7 @@ public class SpeedMeasure_v2 : MonoBehaviour
     // ファイル書き込み関数
     public void SaveData1(string filePath, string txt1, string txt2, string txt3, string txt4, string txt5, string txt6, string txt7, string txt8,
                         string txt9, string txt10, string txt11, string txt12, string txt13, string txt14, string txt15, string txt16, string txt17,
-                        string txt18, string txt19, string txt20, string txt21, string txt22, 
+                        string txt18, string txt19, string txt20, string txt21, string txt22,
                         string txt23, string txt24, string txt25, string txt26, string txt27, string txt28, string txt29, string txt30
                         )
     {
@@ -201,7 +225,6 @@ public class SpeedMeasure_v2 : MonoBehaviour
     {
         // 衝突対象の名前を取得して、ログに出力
         Debug.Log("Collision: " + collision.gameObject.name);
-        //GetComponent<Renderer>().material.color = Color.red;
 
         if (collision.gameObject.tag == "Cube")
         {
@@ -212,7 +235,23 @@ public class SpeedMeasure_v2 : MonoBehaviour
             */
             // 推奨されているこちらの方法で位置を取得する
             Vector3 hitPos = collision.GetContact(0).point;
+            /* ユーザスタディでは、球は表示しない */
             Instantiate(collisionPointSphere, hitPos, Quaternion.identity);
+            try
+            {
+                //Debug.Log("Coroutine: Start");
+                serialHandler.Write("1");
+                /* ユーザスタディでは、色は変更しない */
+                GetComponent<Renderer>().material.color = Color.green;
+
+                //StartCoroutine(WaitTime());
+                flag_Enter = true;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning(e.Message);
+            }
+
             SaveData2(time.ToString(), hitPos.x.ToString(), hitPos.y.ToString(), hitPos.z.ToString());
             Debug.Log("Enter_" + this.gameObject.name + ": " + time + " / " + hitPos.ToString("F7"));
         }
@@ -220,8 +259,18 @@ public class SpeedMeasure_v2 : MonoBehaviour
 
     void OnCollisionExit(Collision collision)
     {
-        Debug.Log("CollisionExit");
-        GetComponent<Renderer>().material.color = Color.white;
+        try
+        {
+            Debug.Log("CollisionExit");
+            GetComponent<Renderer>().material.color = Color.white;
+            serialHandler.Write("0");
+            flag_Enter = false;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning(e.Message);
+        }
+
     }
 
     private void OnApplicationQuit()
@@ -229,4 +278,17 @@ public class SpeedMeasure_v2 : MonoBehaviour
         sw2.Flush(); // StreamWriterのバッファに書き出し残しがないか確認
         sw2.Close(); // アプリケーション終了時に書き込みを終了する
     }
+
+    /*
+        private IEnumerator WaitTime()
+        {
+            Debug.Log("Coroutine: Start");
+            serialHandler.Write("1");
+            GetComponent<Renderer>().material.color = Color.green;
+            yield return new WaitForSeconds(5.0f); // 5秒停止
+            serialHandler.Write("0");
+            Debug.Log("Coroutine: End");
+        }
+        */
 }
+
