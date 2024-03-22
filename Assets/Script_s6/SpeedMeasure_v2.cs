@@ -236,13 +236,13 @@ public class SpeedMeasure_v2 : MonoBehaviour
             // 推奨されているこちらの方法で位置を取得する
             Vector3 hitPos = collision.GetContact(0).point;
             /* ユーザスタディでは、球は表示しない */
-            Instantiate(collisionPointSphere, hitPos, Quaternion.identity);
+            //Instantiate(collisionPointSphere, hitPos, Quaternion.identity);
             try
             {
                 //Debug.Log("Coroutine: Start");
                 serialHandler.Write("1");
                 /* ユーザスタディでは、色は変更しない */
-                GetComponent<Renderer>().material.color = Color.green;
+                //GetComponent<Renderer>().material.color = Color.green;
 
                 //StartCoroutine(WaitTime());
                 flag_Enter = true;
